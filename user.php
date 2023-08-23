@@ -1,21 +1,51 @@
-<div id="friends">
 <?php
-              $image ="images/user_male.jpeg";
-              if($FRIEND_ROW['gender'] == "Female")
-              {
-                $image = "images/user_.jpeg";
-              }
 
-              if(file_exists($FRIEND_ROW['profile_image']))
-              {
-                $image = $image_class->get_thumb_profile( $FRIEND_ROW['profile_image']);
-              }
-            
-            ?>
+class User
+{
+    public function get_data($id)
+    {
+        $query = "select * from users where userid = '$id' limit 1";
+        $DB = new Database();
+        $result = $DB->read($query);
 
-            <a href="profile.php?id=<?php echo $FRIEND_ROW['userid']; ?>">
-            <img id="friends_img" src="<?php echo $image?>">
-            <br>
-            <?php echo $FRIEND_ROW['first_name'] . " " . $FRIEND_ROW['last_name'] ?>
-            </a>
-          </div> 
+        if($result)
+        {
+            $row = $result[0]; 
+            return $row;
+        }else
+        {
+            return false;
+        }
+    }
+
+    public function get_user($id)
+    {
+        $query = "select * from users where userid = '$id' limit 1";
+        $DB = new Database();
+        $result = $DB->read($query);
+
+        if($result)
+        {
+            return $result[0];
+        }else
+        {
+            return false;
+
+        }
+    }
+    public function get_friends($id)
+    {
+        $query = "select * from users where userid != '$id' ";
+        $DB = new Database();
+        $result = $DB->read($query);
+
+        if($result)
+        {
+            return $result;
+        }else
+        {
+            return false;
+
+        }
+    }
+}

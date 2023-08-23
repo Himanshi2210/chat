@@ -1,123 +1,95 @@
 <?php
-    include("classes/connect.php");
-    include("classes/signup.php");
 
-    $first_name = "";
-    $last_name = "";
-    $gender = "";
-    $email = "";
- 
-  
-   
-   if($_SERVER['REQUEST_METHOD'] == 'POST')
+class Signup
+{
+    private $error = "";
+   public function evaluate($data)
+   {
+      
+      foreach ($data as $key => $value) {
+        # code...
+        if(empty($value))
+        {
+           $this->error = $this->error . $key . " is empty!<br>";
+        }
+        if($key == "email")
+        {
+          if(!preg_match("/([\w\-]+\@[\w\-]+\.[\w\-]+)/",$value)){
+            $this->error = $this->error . " invalid email address!<br>";
+          }
+           
+        }
+        if($key == "first_name")
+        {
+          if(is_numeric($value)){
+            $this->error = $this->error . " first name cant be a number<br>";
+          }
+          if(strstr($value, " ")){
+            $this->error = $this->error . " first name cant have spaces<br>";
+          }
+           
+        }
+        
+
+        if($key == "last_name")
+        {
+          if(is_numeric($value)){
+            $this->error = $this->error . " last name cant be a number<br>";
+          }
+
+          if(strstr($value, " ")){
+            $this->error = $this->error . " last name cant have spaces<br>";
+          }
+           
+           
+        }
+      }
+
+      if($this->error == "")
+      {
+        
+        //no error
+        $this->create_user($data);
+
+      }else
+      {
+        return $this->error;
+      } 
+   }
+   public function create_user($data)
    {
 
-   $signup = new Signup();
-  $result = $signup->evaluate($_POST);
+    $first_name = ucfirst($data['first_name']);
+    $last_name = ucfirst( $data['last_name']);
+    $gender = $data['gender'];
+    $email = $data['email'];
+    $password = $data['password'];
 
-  if($result !=""){
-    
-    echo "<div style='text-align:center;font-size:12px;color:white;background-color:grey;'>";
-    echo "<br>The following errors occured:<br><br>";
-    echo $result;
-    echo "</div>";
-  }else
-  {
-        header("Location: login.php");
-        die;
-  }
-  
-  $first_name = $_POST['first_name'];
-  $last_name =$_POST['last_name'];
-  $gender =$_POST['gender'];
-  $email = $_POST['email'];
- 
+    //create these
+    $url_address = strtolower($first_name) . "." . strtolower($last_name);
+    $userid = $this->create_userid();
+
+
+      $query = "insert into users 
+      (userid,first_name,last_name,gender,email,password,url_address)
+       values 
+       ('$userid','$first_name','$last_name','$gender','$email','$password','$url_address')";
+
+       
+      $DB = new Database();
+      $DB->save($query);
    }
-  
-  
-?>
-<html>
 
-<head>
-    <title>MyChat | Signup</title>
-    <style>
-        #bar {
-            height: 100px;
-            background-color: rgb(59, 89, 152);
-            color: blue;
-            font-size: 40px;
-            color: white;
-            padding: 4px;
-        }
+ private function create_userid()
+   {
+       $length = rand(4,19);
+       $number ="";
+       for ($i=0; $i < $length ; $i++) { 
+        # code...
+        $new_rand = rand(0,9);
+        $number =$number . $new_rand;
+       }
 
-        #signup_button {
-            background-color: #42b72a;
-            font-size: 20px;
-            width: 70px;
-            text-align: center;
-            padding: 4px;
-            border-radius: 4px;
-            float: right;
-        }
-
-        #bar2 {
-            background-color: white;
-            width: 800px;
-
-            margin: auto;
-            margin-top: 50px;
-
-            padding: 10px;
-            padding-top: 50px;
-            text-align: center;
-            font-size: bold;
-        }
-
-        #text {
-            height: 40px;
-            width: 300px;
-            border-radius: 4px;
-            border: solid 1px #aaa;
-            padding: 4px;
-            font-size: 14px;
-        }
-        #button{
-            height: 40px;
-            width: 300px;
-            border-radius: 4px;
-            border: none;
-           
-           
-            background-color: rgb(59, 89, 152) ;
-            color: white;
-        }
-    </style>
-</head>
-
-<body style="font-family: tahoma; background-color: #e9ebee;">
-    <div id="bar">
-        <div style="font-size: 40px;">MyChat</div>
-
-        <div id="signup_button">Log in </div>
-    </div>
-    <div id="bar2">
-       <b> Sign up to MyChat</b><br><br>
-
-       <form method="post" action="">
-        <input value="<?php echo $first_name?>" name ="first_name" type="text" id="text" placeholder="First name"><br><br>
-        <input value="<?php echo $last_name?>" name="last_name" type="text" id="text" placeholder="Last name"><br><br>
-        <span style="font-weight: normal;">Gender:</span><br>
-        <select id="text" name="gender">
-            <option><?php echo $gender ?></option>
-            <option>Male</option>
-            <option>Female</option>
-        </select><br><br>
-        <input  value="<?php echo $email?>"name="email" type="text" id="text" placeholder="Email"><br><br>
-        <input name="password" type="password" id="text" placeholder="Password"><br><br>
-        <input name="password2" type="password" id="text" placeholder="Retype Password"><br><br>
-        <input type="submit" id="button" value="Signup"><br><br><br>
-       </form>
-    </div>
-</body>
-
-</html>
+       return $number;
+   }
+}
