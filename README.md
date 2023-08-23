@@ -1,1 +1,1 @@
-# chat
+MyChat is a web application that helps the user to connect with the another user and it also helps the user to make there profiles and they can update with there personal details and also they can post some text and images in there profile.
